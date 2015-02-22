@@ -16,7 +16,7 @@ class LocationClusterer {
         }
 
 //        val clusterer = new DensityBasedSpatialClustering(0.6, 6, new EuclideanDistance())
-        val clusterer = new KMeans(10)
+        val clusterer = new KMeans(30)
 
         clusterer.cluster(new DefaultDataset(instances)).toList
     }
