@@ -1,1 +1,1 @@
-web:    activator run -Dhttp.port=$PORT
+web:    target/universal/stage/bin/codefest -Dhttp.port=$PORT
