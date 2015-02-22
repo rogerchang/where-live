@@ -34,7 +34,7 @@
       <core-header-panel main>
         <core-toolbar class="header">
           <paper-icon-button core-drawer-toggle icon="menu" role="button" tabindex="0" aria-label="Menu"></paper-icon-button>
-          <div>Title</div>
+          <div>Philly Hotspot</div>
         </core-toolbar>
 
         <google-map map="{{map}}" zoom="12" latitude="39.9522" longitude="-75.1639">
@@ -77,13 +77,12 @@
         },
 
         setMapPoints: function(response) {
-          if(!this.map) {
-            return;
-          }
-
           markers.forEach(function(marker) {
             marker.setMap(null);
           })
+          if(!this.map) {
+            return;
+          }
 
           this.points = response.detail.response.data;
 
@@ -92,7 +91,7 @@
               path: google.maps.SymbolPath.CIRCLE,
               fillColor: 'red',
               fillOpacity: 0.5,
-              scale: Math.log(point.radius) * 10,
+              scale: Math.log(point.radius) * 8,
               strokeColor: 'white',
               strokeWeight: 1
             }
