@@ -18,9 +18,14 @@
 
       <core-header-panel drawer class="drawer">
         <template repeat="{{ facet in facets }}">
-          <core-label center horizontal layout>
+          <core-label center horizontal layout
+            on-tap="{{ updateUrl }}"
+            id="{{facet.id}}">
             <paper-ripple class="ripple circle"></paper-ripple>
-            <paper-checkbox for></paper-checkbox>
+            <paper-checkbox
+              class="facet"
+              for>
+            </paper-checkbox>
             {{facet.name}}
           </core-label>
         </template>
@@ -29,17 +34,18 @@
       <core-header-panel main>
         <core-toolbar class="header">
           <paper-icon-button core-drawer-toggle icon="menu" role="button" tabindex="0" aria-label="Menu"></paper-icon-button>
-          <div>Title</div>
+          <div>Philly Hotspot</div>
         </core-toolbar>
 
-        <google-map map="{{map}}"></google-map>
+        <google-map map="{{map}}" zoom="12" latitude="39.9522" longitude="-75.1639">
+        </google-map>
       </core-header-panel>
 
     </core-drawer-panel>
 
     <core-ajax
       auto
-      url="../../facets.json"
+      url="/facets"
       handleAs="json"
       on-core-response="{{ setFacets }}">
     </core-ajax>
@@ -53,6 +59,8 @@
   </template>
   <script>
     (function () {
+
+      var markers = [];
 
       Polymer({
         publish: {
@@ -69,6 +77,9 @@
         },
 
         setMapPoints: function(response) {
+          markers.forEach(function(marker) {
+            marker.setMap(null);
+          })
           if(!this.map) {
             return;
           }
@@ -79,35 +90,48 @@
             var circle = {
               path: google.maps.SymbolPath.CIRCLE,
               fillColor: 'red',
-              fillOpacity: 0.2,
-              scale: point.radius,
+              fillOpacity: 0.5,
+              scale: Math.log(point.radius) * 8,
               strokeColor: 'white',
-              strokeWeight: 0.5
+              strokeWeight: 1
             }
-            var position = new google.maps.LatLng(point.centroid.latitude, point.centroid.longitude);
+            var position = new google.maps.LatLng(point.centroid.lng, point.centroid.lat);
             var marker = new google.maps.Marker({
               position: position,
               icon: circle,
               map: this.map
-            })
+            });
+            markers.push(marker);
           }, this);
 
           return;
         },
 
-        updateUrl: function() {
+        updateUrl: function(foo, bar, el) {
           //cluster?facets=parks,restaurants
+          if(!el) {
+            return;
+          }
+          var facetId = el.id;
+          var isChecked = el.getElementsByTagName('paper-checkbox')[0].hasAttribute("checked");
+          this.facets.forEach( function(facet) {
+            if(facet.id === facetId && isChecked) {
+              facet.value = true;
+            } else if(facet.id === facetId && !isChecked) {
+              facet.value = false;
+            }
+          }, this);
           var url = '/cluster?facets=';
+          var hasFacets = false;
           this.facets.forEach( function(facet) {
             if(facet.value) {
-              url= url + facet.value +',';
+              hasFacets = true;
+              url= url + facet.id +',';
             }
-          });
-
-          //USE DUMMY DATA
-          url = "../../data.json"
-
-          this.dataUrl = url;
+          }, this);
+          if(hasFacets) {
+            this.dataUrl = url;
+          }
         }
 
       });
