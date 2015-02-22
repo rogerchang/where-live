@@ -45,7 +45,6 @@ object Application extends Controller with ImplicitJsonConversions {
     def facets = Action {
         val f = Application.facetsJson.as[List[Facet]].map(facet => Facet(facet.id, facet.name, facet.description))
         val json = Json.toJson(Map("facets" -> f))
-        println(mini)
         Ok(json)
     }
 }
