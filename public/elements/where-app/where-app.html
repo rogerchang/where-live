@@ -1,0 +1,116 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/core-toolbar/core-toolbar.html">
+<link rel="import" href="../../bower_components/core-drawer-panel/core-drawer-panel.html">
+<link rel="import" href="../../bower_components/core-label/core-label.html">
+<link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/google-map/google-map.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../bower_components/font-roboto/roboto.html">
+
+<polymer-element name="where-app" attributes="">
+  <template>
+    <link rel="stylesheet" href="where-app.css">
+
+    <core-drawer-panel>
+
+      <core-header-panel drawer class="drawer">
+        <template repeat="{{ facet in facets }}">
+          <core-label center horizontal layout>
+            <paper-ripple class="ripple circle"></paper-ripple>
+            <paper-checkbox for></paper-checkbox>
+            {{facet.name}}
+          </core-label>
+        </template>
+      </core-header-panel>
+
+      <core-header-panel main>
+        <core-toolbar class="header">
+          <paper-icon-button core-drawer-toggle icon="menu" role="button" tabindex="0" aria-label="Menu"></paper-icon-button>
+          <div>Title</div>
+        </core-toolbar>
+
+        <google-map map="{{map}}"></google-map>
+      </core-header-panel>
+
+    </core-drawer-panel>
+
+    <core-ajax
+      auto
+      url="../../facets.json"
+      handleAs="json"
+      on-core-response="{{ setFacets }}">
+    </core-ajax>
+    <core-ajax
+      auto
+      url="{{dataUrl}}"
+      handleAs="json"
+      on-core-response="{{ setMapPoints }}">
+    </core-ajax>
+
+  </template>
+  <script>
+    (function () {
+
+      Polymer({
+        publish: {
+          mapInitiated: false,
+          points: []
+        },
+
+        setFacets: function(response) {
+          this.facets = response.detail.response.facets;
+        },
+
+        mapChanged: function() {
+          this.updateUrl();
+        },
+
+        setMapPoints: function(response) {
+          if(!this.map) {
+            return;
+          }
+
+          this.points = response.detail.response.data;
+
+          this.points.forEach(function(point) {
+            var circle = {
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: 'red',
+              fillOpacity: 0.2,
+              scale: point.radius,
+              strokeColor: 'white',
+              strokeWeight: 0.5
+            }
+            var position = new google.maps.LatLng(point.centroid.latitude, point.centroid.longitude);
+            var marker = new google.maps.Marker({
+              position: position,
+              icon: circle,
+              map: this.map
+            })
+          }, this);
+
+          return;
+        },
+
+        updateUrl: function() {
+          //cluster?facets=parks,restaurants
+          var url = '/cluster?facets=';
+          this.facets.forEach( function(facet) {
+            if(facet.value) {
+              url= url + facet.value +',';
+            }
+          });
+
+          //USE DUMMY DATA
+          url = "../../data.json"
+
+          this.dataUrl = url;
+        }
+
+      });
+    })();
+  </script>
+</polymer-element>
