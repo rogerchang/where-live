@@ -6,7 +6,7 @@
 #GET        /                    controllers.Application.index
 GET        /cluster          controllers.Application.cluster(facets: String)
 GET        /facets           controllers.Application.facets
-GET        /transform        controllers.Application.transform
+#GET        /transform        controllers.Application.transform
 
 # Map static resources from the /public folder to the /assets URL path
 #GET        /assets/*file        controllers.Assets.at(path="/public", file)
